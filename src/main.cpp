@@ -1,5 +1,9 @@
 #include "main.h"
 
+#include <math.h>
+
+#include "subsystems\declarations.hpp"
+
 double exponential_drive(double input, double controllerDeadband = 3, double drivetrainDeadband = 10, double exponential_gain = 1.019)
 {
     double maximumEffectiveInput = 127 - controllerDeadband; // Need to do this so that maximum input maps to 1
@@ -49,21 +53,16 @@ void competition_initialize() {}
 void autonomous() {}
 
 void opcontrol() {
-	pros::Controller master(pros::E_CONTROLLER_MASTER);
-	pros::MotorGroup left_mg({11, 2, 13});    // Creates a motor group with forwards ports 1 & 3 and reversed port 2
-	pros::MotorGroup right_mg({-3, -14, -15});  // Creates a motor group with forwards port 5 and reversed ports 4 & 6
-
-
 	while (true) {
 		pros::lcd::print(0, "%d %d %d", (pros::lcd::read_buttons() & LCD_BTN_LEFT) >> 2,
 		                 (pros::lcd::read_buttons() & LCD_BTN_CENTER) >> 1,
 		                 (pros::lcd::read_buttons() & LCD_BTN_RIGHT) >> 0);  // Prints status of the emulated screen LCDs
 
 		// Arcade control scheme
-		int dir = master.get_analog(ANALOG_LEFT_Y);    // Gets amount forward/backward from left joystick
-		int turn = master.get_analog(ANALOG_RIGHT_X);  // Gets the turn left/right from right joystick
-		left_mg.move(exponential_drive(dir - turn));                      // Sets left motor voltage
-		right_mg.move(exponential_drive((dir + turn));                     // Sets right motor voltage
-		pros::delay(20);                               // Run for 20 ms then update
+		int dir = master.get_analog(ANALOG_LEFT_Y);    
+		int turn = master.get_analog(ANALOG_RIGHT_X);  
+		left_mg.move(exponential_drive(dir + turn));                      
+		right_mg.move(exponential_drive(dir - turn));                     
+		pros::delay(20);                               
 	}
 }
